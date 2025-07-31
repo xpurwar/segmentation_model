@@ -1,15 +1,17 @@
-import os
 import json
 from pathlib import Path
 
-# Paths to image and label directories
-root = Path("/mnt/cs/cs153/data/brats_data_purwar/BraTS-MET2025")
-imagesTr = root / "imagesTr"
-labelsTr = root / "labelsTr"
 
-modalities = ["t1n", "t1c", "t2w", "t2f"]
-metadata = {
-    "modality": {str(i): mod for i, mod in enumerate(modalities)},
+# Set the base path
+base_dir = Path("/mnt/cs/cs153/data/brats_data_purwar/BraTS-MET2025")
+images_dir = base_dir / "imagesTr"
+labels_dir = base_dir / "labelsTr"
+modalities = ["t1n", "t1c", "t2w", "t2f"]  # Correspond to _0000 → _0003
+num_folds = 5  # or whatever you prefer
+
+# Initialize dataset dictionary
+dataset = {
+    "modality": {str(i): modality for i, modality in enumerate(modalities)},
     "labels": {
         "0": "background",
         "1": "NETC",
@@ -21,25 +23,28 @@ metadata = {
     "test": []
 }
 
-all_ids = sorted(set(f.name.split("_")[0] + "_" + f.name.split("_")[1] for f in imagesTr.glob("*.nii.gz")))
-num_folds = 5
+# Find all base case names
+case_ids = sorted({f.name.split("_")[0] + "_" + f.name.split("_")[1] for f in images_dir.glob("*.nii.gz")})
 
-for i, case_id in enumerate(all_ids):
-    image_paths = [str(imagesTr / f"{case_id}_{i:04d}.nii.gz") for i in range(4)]
-    label_path = str(labelsTr / f"{case_id}.nii.gz")
+# Populate training list
+for i, case_id in enumerate(case_ids):
+    image_paths = [
+        str(images_dir / f"{case_id}_{str(j).zfill(4)}.nii.gz") for j in range(4)
+    ]
+    label_path = str(labels_dir / f"{case_id}.nii.gz")
 
-    if not all(Path(p).exists() for p in image_paths + [label_path]):
-        print(f"Skipping {case_id} due to missing files.")
+    if not all(Path(p).exists() for p in image_paths) or not Path(label_path).exists():
+        print(f"⚠️ Skipping {case_id} due to missing files.")
         continue
 
-    metadata["training"].append({
+    dataset["training"].append({
         "image": image_paths,
         "label": label_path,
-        "fold": i % num_folds
+        "fold": i % num_folds  # Optional: cross-validation fold info
     })
 
-# Write to metadata.json
-with open(root / "metadata.json", "w") as f:
-    json.dump(metadata, f, indent=4)
+# Write to file
+with open(base_dir / "dataset.json", "w") as f:
+    json.dump(dataset, f, indent=4)
 
-print("✅ metadata.json written to:", root / "metadata.json")
+print("✅ dataset.json created at:", base_dir / "dataset.json")
