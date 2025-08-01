@@ -1,23 +1,28 @@
 import shutil
+import time
 from pathlib import Path
 
 print("crezy?")
+
 # Input data paths
-src_dir = Path("/mnt/cs/cs153/data/brats_data_purwar/MICCAI-LH-BraTS2025-MET-Challenge-Training")
-#print("Dirs:", [f.name for f in src_dir.iterdir()])
+src_dir = Path("/mnt/cs/cs153/data/brats_data_purwar/Validation")
 seg_dir = Path("/mnt/cs/cs153/data/brats_data_purwar/MICCAI-LH-BraTS2025-MET-Challenge-corrected-labels")
 
-# Desired output location (you specified this directory)
-output_root = Path("/mnt/cs/cs153/data/brats_data_purwar/BraTS-MET2025")
+# Output paths
+output_root = Path("/mnt/cs/cs153/data/brats_data_purwar/Validation")
 out_images = output_root / "imagesTr"
 out_labels = output_root / "labelsTr"
 out_images.mkdir(parents=True, exist_ok=True)
 out_labels.mkdir(parents=True, exist_ok=True)
 
+# Gather all cases
+cases = sorted([f for f in src_dir.glob("BraTS-MET-*") if f.is_dir()])
+total = len(cases)
+
+start_time = time.time()
+
 # Process each training case
-for i, folder in enumerate(sorted(src_dir.glob("BraTS-MET-*"))):
-    if not folder.is_dir():
-        continue
+for i, folder in enumerate(cases, start=1):
     case_id = folder.name
     t1n = folder / f"{case_id}-t1n.nii.gz"
     t1c = folder / f"{case_id}-t1c.nii.gz"
@@ -26,17 +31,9 @@ for i, folder in enumerate(sorted(src_dir.glob("BraTS-MET-*"))):
     corrected_seg = seg_dir / f"{case_id}-seg.nii.gz"
     default_seg   = folder / f"{case_id}-seg.nii.gz"
     seg = corrected_seg if corrected_seg.exists() else default_seg
-    
-    # print(f"Checking {case_id}")
-    # print("  Expected files:")
-    # print(f"    {t1n.exists()=}, {t1n}")
-    # print(f"    {t1c.exists()=}, {t1c}")
-    # print(f"    {t2w.exists()=}, {t2w}")
-    # print(f"    {t2f.exists()=}, {t2f}")
-    # print(f"    {seg.exists()=}, {seg}")
 
     if not all(f.exists() for f in [t1n, t1c, t2w, t2f, seg]):
-        print(f"Missing file in {case_id}, skipping.")
+        print(f"❌ Missing file in {case_id}, skipping.")
         continue
 
     new_id = case_id.replace("BraTS-MET-", "BRATS_")
@@ -46,4 +43,11 @@ for i, folder in enumerate(sorted(src_dir.glob("BraTS-MET-*"))):
     shutil.copy(t2f, out_images / f"{new_id}_0003.nii.gz")
     shutil.copy(seg, out_labels / f"{new_id}.nii.gz")
 
-print("✅ Done formatting data.")
+    # ETA estimation
+    elapsed = time.time() - start_time
+    avg_time = elapsed / i
+    remaining = avg_time * (total - i)
+    eta_str = time.strftime("%H:%M:%S", time.gmtime(remaining))
+    print(f"✅ Processed {i}/{total} cases – ETA: {eta_str}")
+
+print("🎉 ✅ Done formatting data.")
