@@ -15,15 +15,8 @@ def main():
     config["dataroot"] = str(data_dir)
     config["datalist"] = str(data_dir / "dataset.json")
     config["modality"] = "MRI"
-    config["dataroot"] = str(data_dir)
-    config["datalist"] = str(data_dir / "dataset.json")
-    config["modality"] = "MRI"
-    config["channel_definitions"] = {
-        "t1n": "T1-weighted non-contrast",
-        "t1c": "T1-weighted contrast-enhanced",
-        "t2w": "T2-weighted",
-        "t2f": "FLAIR"
-    }
+
+
     config["class_names"] = [
     {"name": "whole_tumor",     "index": [1, 2, 3]},
     {"name": "tumor_core",      "index": [1, 3]},
@@ -31,32 +24,18 @@ def main():
     ]
     config["output_classes"] = len(config["class_names"]) 
 
-    config["algorithms"] = [
-        {
-            "name": "segresnet",
-            "modality": "MRI",
-            "network": {
-                "_target_": "monai.networks.nets.SegResNet",
-                "init_filters": 32,
-                "blocks_down": [1, 2, 2, 4],
-                "in_channels": 4,           # number of input modalities
-                "out_channels": 3,          # number of classes
-                "norm": "INSTANCE",         # or "BATCH"
-                "dropout_prob": 0.2
-                # note: SegResNet doesn’t currently accept `use_attn` or `use_conv_attn`
-            }
-        }
-    ]
+    config["sigmoid"] = True
+    
 
 
     runner = AutoRunner(
         input=config,
         work_dir=output_dir,
-        algo_path="segresnet",
+        algos="segresnet",
         train=True,
         analyze=True,
         predict=False,
-        infer=False
+        infer=False, 
     )
 
     runner.run()
