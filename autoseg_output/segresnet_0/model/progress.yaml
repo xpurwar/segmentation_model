@@ -1,0 +1,3 @@
+- {best_avg_dice_score_epoch: 9, best_avg_dice_score: 0.0060, save_time: 3.9775, time: 1.59
+    hr, train_time: 488.30s, validation_time: 44.17s, epoch_time: 532.55s, model: /mnt/cs/cs153/projects/brats_segmentation_purwar/segmentation_model/autoseg_output/segresnet_0/model/model.pt,
+  date: '2025-08-02 02:47:12'}

@@ -1,0 +1,14 @@
+artifact_uri: /mnt/cs/cs153/projects/brats_segmentation_purwar/segmentation_model/autoseg_output/segresnet_0/model/mlruns/505114945858632322/ee3358480b1c4e3883d99f026e895f9a/artifacts
+end_time: 1754191952862
+entry_point_name: ''
+experiment_id: '505114945858632322'
+lifecycle_stage: active
+run_id: ee3358480b1c4e3883d99f026e895f9a
+run_name: segresnet - fold0 - train
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1754191855188
+status: 3
+tags: []
+user_id: apurwar

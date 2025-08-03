@@ -1,0 +1,6 @@
+artifact_location: /mnt/cs/cs153/projects/brats_segmentation_purwar/segmentation_model/autoseg_output/segresnet_0/model/mlruns/505114945858632322
+creation_time: 1754101170694
+experiment_id: '505114945858632322'
+last_update_time: 1754101170694
+lifecycle_stage: active
+name: Auto3DSeg

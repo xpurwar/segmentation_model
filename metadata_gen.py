@@ -10,7 +10,6 @@ images_dir = base_dir / "imagesTr"
 labels_dir = base_dir / "labelsTr"
 modalities = ["t1n", "t1c", "t2w", "t2f"]  # Correspond to _0000 → _0003
 val_dir = Path("/mnt/cs/cs153/data/brats_data_purwar/Validation")
-num_folds = 5
 
 # Initialize dataset dict
 dataset = {
@@ -44,7 +43,7 @@ for i, case_id in enumerate(case_ids):
     entry = {
         "image": image_paths,
         "label": label_path,
-        "fold": i % num_folds
+        #"fold": i % num_folds
     }
 
     if i < split_idx:
@@ -97,7 +96,7 @@ for case_id, paths in val_cases.items():
 
 
 # --- Step 3: Write to file ---
-json_path = base_dir / "dataset.json"
+json_path = base_dir / "dataset_nokfold.json"
 with open(json_path, "w") as f:
     json.dump(dataset, f, indent=4)
 

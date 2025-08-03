@@ -4,6 +4,9 @@ import json
 from monai.losses import DiceFocalLoss
 import torch.nn as nn
 from monai.transforms import Lambda
+from autoseg_output.segresnet_0.scripts.custom_losses import DiceHausdorffLoss
+from monai.networks.nets import SegResNet
+
 
 def main():
     data_dir = Path("/mnt/cs/cs153/data/brats_data_purwar/BraTS-MET2025")
@@ -25,8 +28,18 @@ def main():
     config["output_classes"] = len(config["class_names"]) 
 
     config["sigmoid"] = True
-    
 
+    config["roi_size"] = [96,96,64]
+    config["num_steps_per_image"] = 4 
+
+    model = SegResNet(
+    spatial_dims=3,
+    in_channels=4,               
+    out_channels=3,              
+    init_filters=8,              
+    blocks_down=[1, 2, 2, 4, 4], 
+    blocks_up=[1, 1, 1, 1],
+    )
 
     runner = AutoRunner(
         input=config,
@@ -36,6 +49,9 @@ def main():
         analyze=True,
         predict=False,
         infer=False, 
+        loss=DiceHausdorffLoss(sigmoid=True), 
+        device="cuda", 
+        ensemble = True
     )
 
     runner.run()
